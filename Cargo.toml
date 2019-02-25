@@ -1,0 +1,10 @@
+[package]
+name = "cbloom"
+version = "0.1.1"
+authors = ["ticki <Ticki@users.noreply.github.com>"]
+description = "Concurrent implementation of Bloom filters."
+repository = "https://gitlab.redox-os.org/redox-os/cbloom"
+documentation = "https://docs.rs/cbloom"
+license = "MIT"
+keywords = ["bloom", "concurrent", "set", "filter", "garbage-collection"]
+exclude = ["target", "Cargo.lock"]
