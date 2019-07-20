@@ -7,7 +7,6 @@
 //! concurrently.
 
 #![deny(missing_debug_implementations)]
-#![feature(integer_atomics)]
 
 use std::cmp;
 use std::sync::atomic::{self, AtomicU64};
