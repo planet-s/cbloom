@@ -65,7 +65,11 @@ impl Filter {
         // The number of hashers are calculated by multiplying the bits per element by ln(2), which
         // we approximate through multiplying by an integer, then shifting. To make things more
         // precise, we add 0x8000 to round the shift.
-        Filter::with_size_and_hashers(bytes, (bytes / expected_elements * 45426 + 0x8000) >> 16)
+        let hashers = (bytes / expected_elements)
+            .saturating_mul(45426)
+            .saturating_add(0x8000)
+            >> 16;
+        Filter::with_size_and_hashers(bytes, hashers)
     }
 
     /// Create a new Bloom filter with some number of bytes and hashers.
@@ -76,7 +80,7 @@ impl Filter {
     /// If `hashers` is 0, it will be rounded to 1.
     pub fn with_size_and_hashers(bytes: usize, hashers: usize) -> Filter {
         // Convert `bytes` to number of `u64`s, and ceil to avoid case where the output is 0.
-        let len = (bytes + 7) / 8;
+        let len = (bytes.saturating_add(7)) / 8;
         // Initialize a vector with zeros.
         let mut vec = Vec::with_capacity(len);
         for _ in 0..len {
@@ -94,7 +98,7 @@ impl Filter {
     ///
     /// This removes every element from the Bloom filter.
     ///
-    /// Note that it will not do so atomically, and it can remove elements inserted simulatenously
+    /// Note that it will not do so atomically, and it can remove elements inserted simultaneously
     /// to this function being called.
     pub fn clear(&self) {
         for i in &self.bits {
@@ -196,8 +200,10 @@ mod tests {
 
         for _ in 0..16 {
             let filter = filter.clone();
-            joins.push(thread::spawn(move || for i in 0..100 {
-                filter.insert(i)
+            joins.push(thread::spawn(move || {
+                for i in 0..100 {
+                    filter.insert(i)
+                }
             }));
         }
 
